@@ -38,7 +38,7 @@ npm run watch
 - `npm run build:release` - Build and package for distribution
 
 ## Project Structure
-
+```plaintext
 text-tracker-extension/
 ├── dist/ # Built extension files
 ├── public/ # Static files
@@ -48,6 +48,7 @@ text-tracker-extension/
 │ └── content.tsx # Content script entry
 ├── package.json # Dependencies and scripts
 └── webpack.config.js # Build configuration
+```
 
 ## Version History
 
