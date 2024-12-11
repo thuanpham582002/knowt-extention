@@ -3,7 +3,14 @@
   "name": "Text Tracker Extension",
   "version": "1.0",
   "description": "Track and compare text with ProseMirror div",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://api.groq.com/*",
+    "https://api.dictionaryapi.dev/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.knowt.com/*"],

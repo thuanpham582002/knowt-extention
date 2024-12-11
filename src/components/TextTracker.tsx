@@ -19,7 +19,7 @@ const TextTracker: React.FC = () => {
           setInputText('');
           textareaRef.current?.focus();
         }
-      } else if (proseMirrorDivs.length >= 3) {
+      } else if (proseMirrorDivs.length == 3) {
         const targetDiv = proseMirrorDivs[1];
         const text = targetDiv.textContent || '';
         const targetAnswerDiv = proseMirrorDivs[2];

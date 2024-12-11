@@ -7,10 +7,10 @@ function exec(command) {
     return execSync(command).toString();
 }
 
-const stashOutput = exec("git stash save --include-untracked");
-const stashed = !stashOutput.match(/No local changes to save/);
-const branch = exec("git rev-parse --abbrev-ref HEAD").trim();
-exec("git checkout main");
+// const stashOutput = exec("git stash save --include-untracked");
+// const stashed = !stashOutput.match(/No local changes to save/);
+// const branch = exec("git rev-parse --abbrev-ref HEAD").trim();
+// exec("git checkout main");
 
 try {
     const { version } = require('../package.json');
@@ -38,6 +38,6 @@ try {
     archive.directory('dist/', false);
     archive.finalize();
 } finally {
-    exec(`git checkout ${branch}`);
-    if (stashed) exec("git stash pop");
+    // exec(`git checkout ${branch}`);
+    // if (stashed) exec("git stash pop");
 } 

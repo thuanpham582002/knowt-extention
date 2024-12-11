@@ -4,7 +4,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   mode: 'production',
   entry: {
-    content: './src/content.tsx'
+    content: './src/content.tsx',
+    popup: './src/popup.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
