@@ -8,10 +8,8 @@ const createObserver = () => {
     
     if (proseMirrorDivs.length == 2) {
         const boldBody2 = document.querySelector('.bold.body2');
-        console.log('knowt-extension', boldBody2);
         if (boldBody2) {
             const skippedText = boldBody2.textContent?.includes('You skipped this');
-            console.log(skippedText);
             if (skippedText) {
                 const targetDiv = proseMirrorDivs[1];
                 const existingTracker = document.getElementById('text-tracker-extension');
