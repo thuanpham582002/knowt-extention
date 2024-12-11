@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Text Tracker Extension",
+  "version": "1.0",
+  "description": "Track and compare text with ProseMirror div",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.knowt.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
