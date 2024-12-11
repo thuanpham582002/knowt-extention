@@ -1,6 +1,6 @@
 {
   "name": "text-tracker-extension",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "dependencies": {
     "css-loader": "^7.1.2",
     "react": "^17.0.2",
