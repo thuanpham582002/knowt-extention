@@ -1,16 +1,19 @@
-# Text Tracker Extension
+# Knowt Learning Assistant Extension
 
-A Chrome extension for tracking and comparing text input with ProseMirror content on Knowt.com.
+A Chromium extension for helping you learn new words.
 
 ## Features
 
-- Automatically detects skipped questions and correct answers
-- Real-time text comparison
-- Auto-resizing text input
-- Multi-line support
-- Visual feedback for matching text
+- Add text box to retype text for wrong answers. Use Muscle Memory to learn new words.
+- Ai assistant to help you learn new words.
+- Eng-Eng dictionary with phonetic and audio help you learn new words.
+- Ctrl+T to play audio for the word.
 
 ## Installation
+
+- Download the latest release from the [Tags](https://github.com/thuanpham582002/knowt-extention/tags) page
+
+## Build from source
 
 1. Clone the repository
 2. Run `npm install` to install dependencies
@@ -38,6 +41,7 @@ npm run watch
 - `npm run build:release` - Build and package for distribution
 
 ## Project Structure
+
 ```plaintext
 text-tracker-extension/
 ├── dist/ # Built extension files
@@ -52,7 +56,7 @@ text-tracker-extension/
 
 ## Version History
 
-Current version: 2.0.0
+Current version: 2.4.0
 
 ## License
 
