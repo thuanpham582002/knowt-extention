@@ -12,6 +12,11 @@ A Chromium extension for helping you learn new words.
 ## Installation
 
 - Download the latest release from the [Tags](https://github.com/thuanpham582002/knowt-extention/tags) page
+- Extract the zip file
+- Open Chrome and navigate to chrome://extensions/
+- Enable "Developer mode"
+- Click "Load unpacked"
+- Select the dist folder from the project directory
 
 ## Build from source
 
