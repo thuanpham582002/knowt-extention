@@ -21,5 +21,13 @@
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
+  },
+  "commands": {
+    "play-audio": {
+      "suggested_key": {
+        "default": "Ctrl+T"
+      },
+      "description": "Play word pronunciation"
+    }
   }
 }

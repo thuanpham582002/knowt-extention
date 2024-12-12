@@ -4,7 +4,15 @@ import TextTracker from './components/TextTracker';
 import Dictionary from './components/Dictionary';
 import Explanation from './components/Explanation';
 
+const handleKeyPress = (e: KeyboardEvent) => {
+  if (e.ctrlKey && e.key.toLowerCase() === 't') {
+    window.postMessage({ type: 'PLAY_AUDIO' }, '*');
+  }
+};
+
 const createObserver = () => {
+  document.addEventListener('keydown', handleKeyPress);
+  
   const observer = new MutationObserver((mutations) => {
     const proseMirrorDivs = document.querySelectorAll('.ProseMirror');
     
@@ -104,8 +112,21 @@ const createObserver = () => {
     subtree: true
   });
 
-  return observer;
+  // Return cleanup function
+  return () => {
+    document.removeEventListener('keydown', handleKeyPress);
+    observer.disconnect();
+  };
 };
 
-createObserver();
-window.addEventListener('load', createObserver); 
+// Create observer and store cleanup function
+const cleanup = createObserver();
+
+// Add cleanup on window unload
+window.addEventListener('unload', cleanup);
+
+// Create new observer on load
+window.addEventListener('load', () => {
+  cleanup(); // Clean up existing observer if any
+  createObserver();
+}); 
