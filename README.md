@@ -9,6 +9,9 @@ A Chromium extension for helping you learn new words.
 - Eng-Eng dictionary with phonetic and audio help you learn new words.
 - Ctrl+T to play audio for the word.
 
+## Image
+![alt text](image.png)
+
 ## Installation
 
 - Download the latest release from the [Tags](https://github.com/thuanpham582002/knowt-extention/tags) page
