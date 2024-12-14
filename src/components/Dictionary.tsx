@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface DictionaryResponse {
   word: string;
@@ -24,7 +24,7 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<(() => void) | null>(null);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   const playAudio = useCallback(() => {
     if (!definition?.phonetics?.length) return;
@@ -32,34 +32,46 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
     const audioUrl = definition.phonetics.find(p => p.audio)?.audio;
     if (!audioUrl) return;
 
-    const audio = new Audio(audioUrl);
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    const newAudio = new Audio(audioUrl);
+    setAudio(newAudio);
     setIsPlaying(true);
     
-    audio.play().catch(console.error);
-    audio.onended = () => setIsPlaying(false);
-  }, [definition]);
-
-  // Store playAudio reference for external access
-  audioRef.current = playAudio;
+    newAudio.play().catch(console.error);
+    newAudio.onended = () => setIsPlaying(false);
+  }, [definition, audio]);
 
   // Add message listener for keyboard shortcut
   useEffect(() => {
     const handleKeyPress = (event: MessageEvent) => {
-      if (event.data.type === 'PLAY_AUDIO' && audioRef.current) {
-        audioRef.current();
+      if (event.data.type === 'PLAY_AUDIO') {
+        playAudio();
       }
     };
 
     window.addEventListener('message', handleKeyPress);
     return () => window.removeEventListener('message', handleKeyPress);
-  }, []);
+  }, [playAudio]);
 
   useEffect(() => {
+    // Reset audio when word changes
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      setAudio(null);
+    }
+    setIsPlaying(false);
+
     const fetchDefinition = async () => {
       if (!word.trim()) return;
       
       setLoading(true);
       setError(null);
+      setDefinition(null); // Reset definition to ensure phonetics are cleared
       
       try {
         const response = await fetch(

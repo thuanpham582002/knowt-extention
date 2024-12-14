@@ -26,9 +26,9 @@ const Explanation: React.FC<ExplanationProps> = ({ userAnswer, correctAnswer, de
   }, []);
 
   const getExplanation = useCallback(async () => {
-    if (!userAnswer || !correctAnswer) return;
+    if (!correctAnswer) return;
     
-    const requestSignature = `${userAnswer}-${correctAnswer}`;
+    const requestSignature = `${userAnswer || ''}-${correctAnswer}`;
     if (requestSignature === lastRequest) return;
     setLastRequest(requestSignature);
     
@@ -44,15 +44,19 @@ const Explanation: React.FC<ExplanationProps> = ({ userAnswer, correctAnswer, de
           model: model,
           messages: [{
             role: "user",
-            content: `As an English teacher, compare these two answers and explain why the user's answer is incorrect:
+            content: `As an English teacher, ${userAnswer ? 'compare these two answers' : 'explain this answer'}:
               Correct answer: "${correctAnswer}"
               Definition of correct answer: "${definition}"
-              User's answer: "${userAnswer}"
-              Provide a clear and concise explanation of the mistake. Keep it concise and brief.
+              ${userAnswer ? `User's answer: "${userAnswer}"
+              Provide a clear and concise explanation of the mistake.` : 'Explain this answer and its usage.'}
+              Keep it concise and brief.
               Please explain in Vietnamese language for Vietnamese learners.
 
               Then provide an example English sentence using the correct answer, along with its translation in Vietnamese.
               You can provide some English vocabulary phrases that use the correct answer to help the Vietnamese learners understand it.
+              
+              Also, list some synonyms (similar words) of "${correctAnswer}" and explain how they are different in usage.
+              
               Please respond in Vietnamese language.`
           }]
         })

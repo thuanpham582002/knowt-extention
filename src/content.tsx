@@ -23,10 +23,13 @@ const createObserver = () => {
         if (skippedText) {
           const targetDiv = proseMirrorDivs[1];
           const targetText = targetDiv.textContent || '';
+          const definitionDiv = proseMirrorDivs[0];
+          const definitionText = definitionDiv.textContent || '';
           const existingTracker = document.getElementById('text-tracker-extension');
           const existingDict = document.getElementById('dictionary-extension');
+          const existingExplanation = document.getElementById('explanation-extension');
           
-          if (!existingTracker && !existingDict) {
+          if (!existingTracker && !existingDict && !existingExplanation) {
             const wrapper = document.createElement('div');
             wrapper.style.display = 'flex';
             wrapper.style.flexDirection = 'column';
@@ -37,9 +40,13 @@ const createObserver = () => {
             
             const trackerContainer = document.createElement('div');
             trackerContainer.id = 'text-tracker-extension';
+
+            const explanationContainer = document.createElement('div');
+            explanationContainer.id = 'explanation-extension';
             
             wrapper.appendChild(dictContainer);
             wrapper.appendChild(trackerContainer);
+            wrapper.appendChild(explanationContainer);
             
             targetDiv.parentNode?.insertBefore(wrapper, targetDiv.nextSibling);
 
@@ -49,6 +56,14 @@ const createObserver = () => {
                 <TextTracker />
               </React.StrictMode>,
               trackerContainer
+            );
+            ReactDOM.render(
+              <Explanation
+                userAnswer=""
+                correctAnswer={targetText}
+                definition={definitionText}
+              />,
+              explanationContainer
             );
           }
         }
