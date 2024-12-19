@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -7,7 +8,8 @@ module.exports = {
     content: './src/content.tsx',
     popup: './src/popup.tsx',
     background: './src/background.ts',
-    'popup-inject': './src/popup-inject.tsx'
+    'popup-inject': './src/popup-inject.tsx',
+    vocabulary: './src/vocabulary.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -38,11 +40,26 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: 'public', to: '.' }
+        { 
+          from: 'public',
+          to: '.',
+          globOptions: {
+            ignore: ['**/popup.html', '**/vocabulary.html']
+          }
+        }
       ]
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/popup.html',
+      filename: 'popup.html',
+      chunks: ['popup'],
+      inject: 'body'
+    }),
+    new HtmlWebpackPlugin({
+      template: './public/vocabulary.html',
+      filename: 'vocabulary.html',
+      chunks: ['vocabulary'],
+      inject: 'body'
     })
   ],
-  optimization: {
-    minimize: true
-  }
 }; 

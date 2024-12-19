@@ -1,14 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import VocabularyPopup from './components/VocabularyPopup';
+import { createRoot } from 'react-dom/client';
+import VocabularyPopup from './popup/VocabularyPopup';
 
 const container = document.createElement('div');
 container.id = 'vocabulary-popup-root';
 document.body.appendChild(container);
 
-ReactDOM.render(
+const root = createRoot(container);
+root.render(
   <React.StrictMode>
     <VocabularyPopup />
-  </React.StrictMode>,
-  container
+  </React.StrictMode>
 ); 

@@ -98,6 +98,13 @@ export class VocabularyStorage {
     }
   }
 
+  static async delete(word: string): Promise<boolean> {
+    const vocabularyList = await this.getAll();
+    const updatedList = vocabularyList.filter(item => item.word !== word);
+    await chrome.storage.sync.set({ [this.STORAGE_KEY]: updatedList });
+    return true;
+  }
+
   /**
    * Get due vocabulary items
    */

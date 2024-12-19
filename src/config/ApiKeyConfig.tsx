@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import VocabularyManager from '../site/VocabularyManager';
 import { VocabularyStorage } from '../utils/VocabularyStorage';
+import { createRoot } from 'react-dom/client';
 
 interface ModelOption {
   id: string;
@@ -16,7 +18,7 @@ const PRODUCTION_MODELS: ModelOption[] = [
   { id: 'mixtral-8x7b-32768', developer: 'Mistral', contextWindow: '32,768' }
 ];
 
-const ApiKeyPopup: React.FC = () => {
+const ApiKeyConfig: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('llama-3.3-70b-versatile');
 
@@ -50,6 +52,15 @@ const ApiKeyPopup: React.FC = () => {
     } catch (error) {
       console.error('Error saving settings:', error);
     }
+  };
+
+  const handleOpenManager = () => {
+    const container = document.createElement('div');
+    container.id = 'vocabulary-manager-root';
+    document.body.appendChild(container);
+    
+    const root = createRoot(container);
+    root.render(<VocabularyManager />);
   };
 
   return (
@@ -136,4 +147,4 @@ const ApiKeyPopup: React.FC = () => {
   );
 };
 
-export default ApiKeyPopup; 
+export default ApiKeyConfig; 

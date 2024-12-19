@@ -50,6 +50,12 @@
     {
       "resources": ["*.svg", "*.png"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "resources": [
+        "vocabulary.html"
+      ],
+      "matches": ["<all_urls>"]
     }
   ]
 }

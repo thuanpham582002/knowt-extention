@@ -1,15 +1,9 @@
-interface Vocabulary {
-  word: string;
-  description: string;
-  showAfterSeconds: number;
-  timestamp: number;
-}
-
+import { VocabularyItem } from './types/VocabularyItem';
 async function checkVocabulary() {
   const { vocabularyList = [] } = await chrome.storage.sync.get('vocabularyList');
   const now = Date.now();
   
-  const dueVocabulary = vocabularyList.filter((item: Vocabulary) => {
+  const dueVocabulary = vocabularyList.filter((item: VocabularyItem) => {
     const timePassed = (now - item.timestamp) / 1000;
     return timePassed >= item.showAfterSeconds;
   });
