@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { VocabularyStorage } from '../utils/VocabularyStorage';
 
 interface ModelOption {
   id: string;
@@ -30,14 +31,25 @@ const ApiKeyPopup: React.FC = () => {
     });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    chrome.storage.sync.set({ 
-      groqApiKey: apiKey,
-      groqModel: selectedModel 
-    }, () => {
+    
+    try {
+      await chrome.storage.sync.set({ 
+        groqApiKey: apiKey,
+        groqModel: selectedModel 
+      });
+
+      // If GitHub sync is enabled, sync vocabulary
+      const result = await chrome.storage.sync.get('enableGithubSync');
+      if (result.enableGithubSync) {
+        await VocabularyStorage.syncWithGithub();
+      }
+
       console.log('Settings saved');
-    });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    }
   };
 
   return (

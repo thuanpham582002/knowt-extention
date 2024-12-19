@@ -5,7 +5,9 @@ module.exports = {
   mode: 'production',
   entry: {
     content: './src/content.tsx',
-    popup: './src/popup.tsx'
+    popup: './src/popup.tsx',
+    background: './src/background.ts',
+    'popup-inject': './src/popup-inject.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -13,7 +15,12 @@ module.exports = {
     clean: true
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx']
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    alias: {
+      'react': path.resolve('./node_modules/react'),
+      'react-dom': path.resolve('./node_modules/react-dom'),
+      'styled-components': path.resolve('./node_modules/styled-components'),
+    }
   },
   module: {
     rules: [
@@ -21,6 +28,10 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
     ]
   },

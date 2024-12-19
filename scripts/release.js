@@ -58,7 +58,7 @@ try {
     exec(`git tag -a ${tag} -m "Version ${newVersion}" -f`);
     exec("git push --follow-tags");
 
-    exec(`gh release create ${tag} --title "Text Tracker Extension ${newVersion}" --notes "" --draft`);
+    exec(`git push origin ${tag} && git push origin main`);
 } catch (e) {
     console.log('Error! Reverting changes and returning to original git state');
     exec('git reset --hard');

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { VocabularyStorage } from '../utils/VocabularyStorage';
 
 const TextTracker: React.FC = () => {
   const [originalText, setOriginalText] = useState('');
@@ -7,27 +8,120 @@ const TextTracker: React.FC = () => {
   const [textareaHeight, setTextareaHeight] = useState(58);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const parseShowAfterTime = (timeText: string): number | null => {
+    const match = timeText.match(/Show in (\d+) (second|seconds|minute|minutes|day|days)/);
+    if (!match) return null;
+
+    const number = parseInt(match[1]);
+    const unit = match[2].toLowerCase();
+    
+    let showAfterSeconds = number;
+    if (unit.startsWith('minute')) {
+      showAfterSeconds = number * 60;
+    } else if (unit.startsWith('day')) {
+      showAfterSeconds = number * 24 * 60 * 60;
+    }
+    
+    return showAfterSeconds;
+  };
+
+  const findButtonWithBlackBorder = (): HTMLElement | null => {
+    const buttons = document.querySelectorAll('div[button]');
+    return Array.from(buttons).find(button => {
+      const buttonElement = button as HTMLElement;
+      const style = buttonElement.style.border;
+      const hasBlackBorder = style.includes('var(--color-neutral-black');
+      return hasBlackBorder;
+    }) as HTMLElement || null;
+  };
+
+  const saveVocabulary = async (word: string, description: string, showAfterSeconds: number) => {
+    try {
+      const success = await VocabularyStorage.add(word, description, showAfterSeconds);
+      if (success) {
+        console.log('Saved vocabulary:', { word, description });
+      } else {
+        console.log('Word already exists in vocabulary');
+      }
+    } catch (error) {
+      console.error('Failed to save vocabulary:', error);
+    }
+  };
+
+  const handleSkippedWord = (proseMirrorDivs: NodeListOf<Element>, isSkipped: boolean) => {
+    const targetAnswerDiv = proseMirrorDivs[1];
+    const targetAnswerText = targetAnswerDiv.textContent || '';
+    const description = proseMirrorDivs[0].textContent || '';
+    
+    console.log('handleSkippedWord:', {
+      isSkipped,
+      targetAnswerText,
+      description
+    });
+    
+    if (isSkipped) {
+      setOriginalText(targetAnswerText);
+      setInputText('');
+      textareaRef.current?.focus();
+    }
+
+    const button = findButtonWithBlackBorder();
+    if (!button) {
+      console.log('No button with black border found');
+      return;
+    }
+
+    const spans = button.querySelectorAll('span');
+    const showAfterText = spans[spans.length - 1]?.textContent || '';
+    const showAfterSeconds = parseShowAfterTime(showAfterText);
+    
+    console.log('Show after info:', {
+      showAfterText,
+      showAfterSeconds
+    });
+    
+    if (showAfterSeconds !== null) {
+      saveVocabulary(targetAnswerText, description, showAfterSeconds);
+    }
+  };
+
+  const handleUserAnswer = (proseMirrorDivs: NodeListOf<Element>) => {
+    const targetDiv = proseMirrorDivs[1];
+    const text = targetDiv.textContent || '';
+    const targetAnswerDiv = proseMirrorDivs[2];
+    const targetAnswerText = targetAnswerDiv.textContent || '';
+    const description = proseMirrorDivs[0].textContent || '';
+    
+    setOriginalText(targetAnswerText);
+    setInputText(text);
+    textareaRef.current?.focus();
+    textareaRef.current?.select();
+
+    const button = findButtonWithBlackBorder();
+    if (!button) return;
+
+    const spans = button.querySelectorAll('span');
+    const showAfterText = spans[spans.length - 1]?.textContent || '';
+    const showAfterSeconds = parseShowAfterTime(showAfterText);
+    
+    if (showAfterSeconds !== null) {
+      saveVocabulary(targetAnswerText, description, showAfterSeconds);
+    }
+  };
+
   useEffect(() => {
     const updateOriginalText = () => {
       const proseMirrorDivs = document.querySelectorAll('.ProseMirror');
+      
       if (proseMirrorDivs.length === 2) {
         const boldBody2 = document.querySelector('.bold.body2');
         if (boldBody2 && boldBody2.textContent?.includes('You skipped this')) {
-          const targetAnswerDiv = proseMirrorDivs[1];
-          const targetAnswerText = targetAnswerDiv.textContent || '';
-          setOriginalText(targetAnswerText);
-          setInputText('');
-          textareaRef.current?.focus();
+          handleSkippedWord(proseMirrorDivs, true);
+        } else if (boldBody2 && boldBody2.textContent?.includes('You got it right!')) {
+          handleSkippedWord(proseMirrorDivs, false);
         }
-      } else if (proseMirrorDivs.length == 3) {
-        const targetDiv = proseMirrorDivs[1];
-        const text = targetDiv.textContent || '';
-        const targetAnswerDiv = proseMirrorDivs[2];
-        const targetAnswerText = targetAnswerDiv.textContent || '';
-        setOriginalText(targetAnswerText);
-        setInputText(text);
-        textareaRef.current?.focus();
-        textareaRef.current?.select();
+      } else if (proseMirrorDivs.length === 3) {
+        handleUserAnswer(proseMirrorDivs);
       }
     };
 
@@ -41,6 +135,7 @@ const TextTracker: React.FC = () => {
         characterData: true,
         subtree: true
       });
+      console.log('Observer attached to ProseMirror div');
     }
 
     return () => observer.disconnect();
@@ -55,10 +150,13 @@ const TextTracker: React.FC = () => {
     }
   }, [inputText]);
 
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
     setInputText(newText);
     setIsMatch(newText === originalText);
+    console.log('Input text changed:', newText);
+    console.log('Text matches:', newText === originalText);
   };
 
   return (

@@ -1,18 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { DictionaryResponse } from '../types/DictionaryResponse';
 
-interface DictionaryResponse {
-  word: string;
-  phonetics: {
-    text?: string;
-    audio?: string;
-  }[];
-  meanings: {
-    partOfSpeech: string;
-    definitions: {
-      definition: string;
-      example?: string;
-    }[];
-  }[];
+export async function fetchDefinition(word: string): Promise<DictionaryResponse> {
+  if (!word.trim()) {
+    throw new Error('Word is required');
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Word not found');
+    }
+    
+    const data = await response.json();
+    return data[0];
+  } catch (error) {
+    console.error('Failed to fetch definition:', error);
+    throw error;
+  }
 }
 
 interface DictionaryProps {
@@ -66,24 +74,16 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
     }
     setIsPlaying(false);
 
-    const fetchDefinition = async () => {
+    const getDictionary = async () => {
       if (!word.trim()) return;
       
       setLoading(true);
       setError(null);
-      setDefinition(null); // Reset definition to ensure phonetics are cleared
+      setDefinition(null);
       
       try {
-        const response = await fetch(
-          `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`
-        );
-        
-        if (!response.ok) {
-          throw new Error('Word not found');
-        }
-        
-        const data = await response.json();
-        setDefinition(data[0]);
+        const data = await fetchDefinition(word);
+        setDefinition(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch definition');
       } finally {
@@ -91,8 +91,8 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
       }
     };
 
-    fetchDefinition();
-  }, [word]);
+    getDictionary();
+  }, [word, audio]);
 
   if (loading) {
     return <div>Loading definition...</div>;
