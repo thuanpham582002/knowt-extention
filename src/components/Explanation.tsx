@@ -112,14 +112,14 @@ const Explanation: React.FC<ExplanationProps> = ({ userAnswer, correctAnswer, de
 
   return (
     <div style={{
-      padding: '15px',
+      padding: '1.5rem',
       backgroundColor: '#fff3f3',
       borderRadius: '1.7rem',
-      marginTop: '10px',
+      marginTop: '1rem',
       fontFamily: 'var(--knowt-font-name)',
       fontSize: '1.4rem',
       borderStyle: 'solid',
-      borderWidth: '2px',
+      borderWidth: '0.125rem',
       borderColor: '#ffcdd2',
       color: '#000000'
     }}>

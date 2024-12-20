@@ -211,10 +211,26 @@ const VocabularyManager: React.FC = () => {
     const nextReview = new Date(item.timestamp + item.showAfterSeconds * 1000);
     const now = new Date();
     const diffTime = nextReview.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffTime <= 0) return 'Ready for review';
-    return `Next review in ${diffDays} day${diffDays === 1 ? '' : 's'}`;
+
+    const seconds = Math.floor(diffTime / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+
+    if (seconds < 60) {
+      return `Next review in ${seconds} second${seconds === 1 ? '' : 's'}`;
+    } else if (minutes < 60) {
+      return `Next review in ${minutes} minute${minutes === 1 ? '' : 's'}`;
+    } else if (hours < 24) {
+      return `Next review in ${hours} hour${hours === 1 ? '' : 's'}`;
+    } else if (days < 30) {
+      return `Next review in ${days} day${days === 1 ? '' : 's'}`;
+    } else {
+      return `Next review in ${months} month${months === 1 ? '' : 's'}`;
+    }
   };
 
   const filteredItems = items.filter(item => 

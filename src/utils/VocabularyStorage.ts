@@ -144,7 +144,7 @@ export class VocabularyStorage {
         });
       } else {
         return this.update(word, {
-          showAfterSeconds: 60 * 60, // Reset to 1 hour
+          showAfterSeconds: 60, // Reset to 1 minute
           previousInterval: 0,
           timestamp: Date.now()
         });

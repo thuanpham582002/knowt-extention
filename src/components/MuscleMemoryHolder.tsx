@@ -12,7 +12,7 @@ interface MuscleMemoryHolderProps {
   isRenderTextTracker: boolean;
   isRenderDictionary: boolean;
   isRenderExplanation: boolean;
-  onRenderSuccess?: () => void;
+  onRetypeMatch?: (isMatch: boolean) => void;
 }
 
 const MuscleMemoryHolder: React.FC<MuscleMemoryHolderProps> = ({
@@ -23,24 +23,12 @@ const MuscleMemoryHolder: React.FC<MuscleMemoryHolderProps> = ({
   isRenderTextTracker,
   isRenderDictionary,
   isRenderExplanation,
-  onRenderSuccess
+  onRetypeMatch
 }) => {
-  const muscleMemoryHolder = document.querySelector('.muscle-memory-holder');
-  console.log('muscleMemoryHolder', muscleMemoryHolder);
-  if (muscleMemoryHolder) {
-    return null;
-  }
-
-  useEffect(() => {
-    if (onRenderSuccess) {
-      onRenderSuccess();
-    }
-  }, [onRenderSuccess]);
-
   return (
     <div className="muscle-memory-holder">
       {isRenderDiffCheck && <DiffCheck userAnswer={userAnswer} correctAnswer={correctAnswer} />}
-      {isRenderTextTracker && <TextTracker  userAnswer={userAnswer} correctAnswer={correctAnswer} />}
+      {isRenderTextTracker && <TextTracker  userAnswer={userAnswer} correctAnswer={correctAnswer} onRetypeMatch={onRetypeMatch} />}
       {isRenderDictionary && <Dictionary word={correctAnswer} />}
       {isRenderExplanation && <Explanation userAnswer={userAnswer} correctAnswer={correctAnswer} definition={description} />}
     </div>

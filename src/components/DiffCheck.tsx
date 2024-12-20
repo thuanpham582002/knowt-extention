@@ -15,8 +15,7 @@ const DiffCheck: React.FC<DiffCheckProps> = ({ userAnswer, correctAnswer }) => {
 
   return (
     <CharacterDiff>
-      <div className="diff-section">
-        <span className="label">Your answer:</span>
+      <div className="diff-section" style={{ paddingLeft: '1rem' }}>
         {differences.map((part: Change, i: number) => {
           if (part.added) return null;
           return (
@@ -30,8 +29,7 @@ const DiffCheck: React.FC<DiffCheckProps> = ({ userAnswer, correctAnswer }) => {
         })}
       </div>
       
-      <div className="diff-section">
-        <span className="label">Correct answer:</span>
+      <div className="diff-section" style={{ paddingLeft: '1rem' }}>
         {differences.map((part: Change, i: number) => {
           if (part.removed) return null;
           return (
@@ -49,11 +47,11 @@ const DiffCheck: React.FC<DiffCheckProps> = ({ userAnswer, correctAnswer }) => {
 };
 
 const CharacterDiff = styled.div`
-  font-size: 18px;
+  font-size: 1.7rem;
   font-family: monospace;
   background: #f8f9fa;
-  border-radius: 12px;
-  line-height: 1.6;
+  border-radius: 0.75rem;
+  line-height: 1.5;
 
   .diff-section {
     &:last-child {
@@ -62,7 +60,7 @@ const CharacterDiff = styled.div`
   }
 
   .label {
-    font-size: 14px;
+    font-size: 1.7rem;
     color: #666;
     display: block;
   }

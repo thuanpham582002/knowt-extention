@@ -1,0 +1,55 @@
+1|import { TTSResponse } from '../types/TTSResponse';
+2|
+3|export class AudioService {
+4|  private static isPlaying = false;
+5|
+6|  public static async playAudio(word: string): Promise<void> {
+7|    if (!word.trim() || this.isPlaying) return;
+8|
+9|    let audioElement: HTMLAudioElement | null = null;
+10|
+11|    try {
+12|      this.isPlaying = true;
+13|      
+14|      const response = await new Promise<TTSResponse>((resolve, reject) => {
+15|        chrome.runtime.sendMessage({
+16|          type: 'PLAY_TTS',
+17|          word: word
+18|        }, (response) => {
+19|          if (chrome.runtime.lastError) {
+20|            reject(chrome.runtime.lastError);
+21|            return;
+22|          }
+23|          resolve(response || { success: false, error: 'No response received' });
+24|        });
+25|      });
+26|
+27|      if (!response.success || !response.audioData) {
+28|        throw new Error(response.error || 'Failed to get audio data');
+29|      }
+30|
+31|      audioElement = new Audio(response.audioData);
+32|      audioElement.onerror = (e) => {
+33|        console.error('Audio error:', e);
+34|        throw new Error('Failed to load audio');
+35|      };
+36|
+37|      await audioElement.play();
+38|      
+39|      // Wait for audio to finish playing
+40|      await new Promise((resolve, reject) => {
+41|        if (!audioElement) return reject(new Error('No audio element'));
+42|        audioElement.onended = resolve;
+43|        audioElement.onerror = reject;
+44|      });
+45|
+46|    } catch (error) {
+47|      console.error('Failed to play audio:', error);
+48|    } finally {
+49|      if (audioElement) {
+50|        audioElement.remove();
+51|      }
+52|      this.isPlaying = false;
+53|    }
+54|  }
+55|} 

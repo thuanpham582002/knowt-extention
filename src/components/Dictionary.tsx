@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DictionaryResponse } from '../types/DictionaryResponse';
+import { AudioService } from '../services/AudioService';
 
 export async function fetchDefinition(word: string): Promise<DictionaryResponse> {
   if (!word.trim()) {
@@ -31,49 +32,28 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
   const [definition, setDefinition] = useState<DictionaryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
-  const playAudio = useCallback(() => {
-    if (!definition?.phonetics?.length) return;
-
-    const audioUrl = definition.phonetics.find(p => p.audio)?.audio;
-    if (!audioUrl) return;
-
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-
-    const newAudio = new Audio(audioUrl);
-    setAudio(newAudio);
-    setIsPlaying(true);
-    
-    newAudio.play().catch(console.error);
-    newAudio.onended = () => setIsPlaying(false);
-  }, [definition, audio]);
+  const handlePlayAudio = useCallback(async () => {
+    await AudioService.playAudio(word);
+  }, [word]);
 
   // Add message listener for keyboard shortcut
   useEffect(() => {
     const handleKeyPress = (event: MessageEvent) => {
-      if (event.data.type === 'PLAY_AUDIO') {
-        playAudio();
+      if (event.data.type === 'PLAY_AUDIO' && 
+          word.trim() && 
+          definition?.word && 
+          !loading && 
+          !error) {
+        handlePlayAudio();
       }
     };
 
     window.addEventListener('message', handleKeyPress);
     return () => window.removeEventListener('message', handleKeyPress);
-  }, [playAudio]);
+  }, [handlePlayAudio, word, definition, loading, error]);
 
   useEffect(() => {
-    // Reset audio when word changes
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      setAudio(null);
-    }
-    setIsPlaying(false);
-
     const getDictionary = async () => {
       if (!word.trim()) return;
       
@@ -92,7 +72,7 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
     };
 
     getDictionary();
-  }, [word, audio]);
+  }, [word]);
 
   if (loading) {
     return <div>Loading definition...</div>;
@@ -108,10 +88,10 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
 
   return (
     <div style={{
-      padding: '15px',
+      padding: '1.5rem',
       backgroundColor: '#f5f5f5',
-      borderRadius: '8px',
-      marginTop: '10px',
+      borderRadius: '0.75rem',
+      marginTop: '1rem',
       fontFamily: 'var(--knowt-font-name)',
       fontSize: '1.4rem',
       color: '#000000'
@@ -119,8 +99,8 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '10px',
-        marginBottom: '10px' 
+        gap: '1rem',
+        marginBottom: '1rem' 
       }}>
         <h3 style={{ margin: 0 }}>{definition.word}</h3>
         {definition.phonetics?.length > 0 && definition.phonetics[0].text && (
@@ -131,49 +111,46 @@ const Dictionary: React.FC<DictionaryProps> = ({ word }) => {
             {definition.phonetics[0].text}
           </span>
         )}
-        {definition.phonetics?.some(p => p.audio) && (
-          <button
-            onClick={playAudio}
-            disabled={isPlaying}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '5px',
-              display: 'flex',
-              alignItems: 'center',
-              opacity: isPlaying ? 0.5 : 1
-            }}
+        <button
+          onClick={handlePlayAudio}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            opacity: 1
+          }}
+        >
+          <svg 
+            width="2.4rem" 
+            height="2.4rem" 
+            viewBox="0 0 24 24" 
+            fill="#000000"
           >
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="#000000"
-            >
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-            </svg>
-          </button>
-        )}
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
       </div>
       {definition.meanings.map((meaning, index) => (
-        <div key={index} style={{ marginBottom: '10px' }}>
+        <div key={index} style={{ marginBottom: '1rem' }}>
           <div style={{ 
             color: '#444444',
             fontStyle: 'italic',
-            marginBottom: '5px',
+            marginBottom: '0.5rem',
             fontWeight: '500'
           }}>
             {meaning.partOfSpeech}
           </div>
-          <ul style={{ margin: '0', paddingLeft: '20px' }}>
+          <ul style={{ margin: '0', paddingLeft: '2rem' }}>
             {meaning.definitions.slice(0, 2).map((def, idx) => (
-              <li key={idx} style={{ marginBottom: '5px' }}>
+              <li key={idx} style={{ marginBottom: '0.5rem' }}>
                 {def.definition}
                 {def.example && (
                   <div style={{ 
                     color: '#444444',
-                    marginTop: '3px',
+                    marginTop: '0.3rem',
                     fontSize: '1.2rem',
                     fontWeight: '500'
                   }}>

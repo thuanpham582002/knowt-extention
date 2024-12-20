@@ -53,7 +53,7 @@ const createObserver = () => {
   document.addEventListener('keydown', handleKeyPress);
   
   const observer = new MutationObserver((mutations) => {
-    if (document.querySelector('.muscle-memory-holder')) {
+    if (document.getElementById('knowt-assistant-holder')) {
       return;
     }
     const proseMirrorDivs = document.querySelectorAll('.ProseMirror');
@@ -67,29 +67,21 @@ const createObserver = () => {
         const definitionText = definitionDiv.textContent || '';
         const skippedText = boldBody2.textContent?.includes('You skipped this');
 
-        const wrapper = document.createElement('div');
-        wrapper.style.display = 'flex';
-        wrapper.style.flexDirection = 'column';
-        wrapper.style.gap = '10px';
-        targetDiv.parentNode?.insertBefore(wrapper, targetDiv.nextSibling);
-
-       if (skippedText) {
-          ReactDOM.render(<MuscleMemoryHolder userAnswer="" correctAnswer={targetText} isRenderDiffCheck={false} description={definitionText} isRenderTextTracker={true} isRenderDictionary={true} isRenderExplanation={true} onRenderSuccess={() => {
-            const button = findButtonWithBlackBorder();
-            const showAfterSeconds = button?.textContent ? parseShowAfterTime(button.textContent) : null;
-            
-            if (showAfterSeconds) {
-              saveVocabulary(targetText, definitionText, showAfterSeconds);
-            }
-          }} />, wrapper);
-        } 
-        else {
-          const button = findButtonWithBlackBorder();
-          const showAfterSeconds = button?.textContent ? parseShowAfterTime(button.textContent) : null;
-          
-          if (showAfterSeconds) {
-            saveVocabulary(targetText, definitionText, showAfterSeconds);
-          }
+             
+        if (skippedText) {
+          const wrapper = document.createElement('div');
+          wrapper.id = 'knowt-assistant-holder';
+          wrapper.style.display = 'flex';
+          wrapper.style.flexDirection = 'column';
+          wrapper.style.gap = '10px';
+          targetDiv.parentNode?.insertBefore(wrapper, targetDiv.nextSibling);  
+          ReactDOM.render(<MuscleMemoryHolder userAnswer="" correctAnswer={targetText} isRenderDiffCheck={false} description={definitionText} isRenderTextTracker={true} isRenderDictionary={true} isRenderExplanation={true} />, wrapper);
+        }
+        const button = findButtonWithBlackBorder();
+        const showAfterSeconds = button?.textContent ? parseShowAfterTime(button.textContent) : null;
+        
+        if (showAfterSeconds) {
+          saveVocabulary(targetText, definitionText, showAfterSeconds);
         }
       }
     }
@@ -101,6 +93,7 @@ const createObserver = () => {
       const targetText = targetDiv.textContent || '';
      
       const wrapper = document.createElement('div');
+      wrapper.id = 'knowt-assistant-holder';
       wrapper.style.display = 'flex';
       wrapper.style.flexDirection = 'column';
       wrapper.style.gap = '10px';
@@ -110,14 +103,13 @@ const createObserver = () => {
       const userAnswerDiv = proseMirrorDivs[1];
       const userAnswerText = userAnswerDiv.textContent || '';
 
-      ReactDOM.render(<MuscleMemoryHolder userAnswer={userAnswerText} correctAnswer={targetText} isRenderDiffCheck={false} description={definitionText} isRenderTextTracker={true} isRenderDictionary={true} isRenderExplanation={true} onRenderSuccess={() => {
-        const button = findButtonWithBlackBorder();
-        const showAfterSeconds = button?.textContent ? parseShowAfterTime(button.textContent) : null;
+      ReactDOM.render(<MuscleMemoryHolder userAnswer={userAnswerText} correctAnswer={targetText} isRenderDiffCheck={false} description={definitionText} isRenderTextTracker={true} isRenderDictionary={true} isRenderExplanation={true} />, wrapper);
+      const button = findButtonWithBlackBorder();
+      const showAfterSeconds = button?.textContent ? parseShowAfterTime(button.textContent) : null;
         
-        if (showAfterSeconds) {
-          saveVocabulary(targetText, definitionText, showAfterSeconds);
-        }
-      }} />, wrapper);
+      if (showAfterSeconds) {
+        saveVocabulary(targetText, definitionText, showAfterSeconds);
+      }
     }
   });
 

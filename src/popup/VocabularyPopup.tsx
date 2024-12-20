@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import ReactDOM from 'react-dom';
 import { VocabularyItem } from '../types/VocabularyItem';
 import { VocabularyStorage } from '../utils/VocabularyStorage';
 import MuscleMemoryHolder from '../components/MuscleMemoryHolder';
-
+import { AudioService } from '../services/AudioService';
 
 interface PopupContainerProps {
   $show: boolean;
@@ -29,59 +29,81 @@ const PopupContainer = styled.div<PopupContainerProps>`
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  width: 800px !important;
+  transform: translate(-50%, -50%)!important;
+  transform-origin: center;
+  width: 63.75rem !important;
   max-width: 95vw !important;
-  max-height: 90vh !important;
+  height: 80vh !important;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 1.275rem;
+  box-shadow: 0 0.425rem 2.125rem rgba(0, 0, 0, 0.15);
   z-index: 999999;
   opacity: ${props => props.$show ? 1 : 0};
   transition: all 0.3s ease;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  font-size: 0.8rem;
 `;
 
 const PopupContent = styled.div`
-  padding: 25px;
-  overflow-x: hidden;
+  padding: 2.55rem;
   flex: 1;
   background: #282929;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  /* Custom scrollbar styles */
+  &::-webkit-scrollbar {
+    width: 0.85rem;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    border-radius: 0.425rem;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 0.425rem;
+    
+    &:hover {
+      background: #5a5a5a;
+    }
+  }
 `;
 const Description = styled.p`
-  font-size: 18px;
-  margin-bottom: 25px;
-  line-height: 1.6;
+  font-size: 1.7rem;
+  margin-bottom: 2.55rem;
+  line-height: 1.5;
   color: #E7E7E7;
   font-weight: 500;
 `;
 const Input = styled.input`
   width: 100%;
-  padding: 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 1.7rem;
+  border: 0.2125rem solid #e0e0e0;
+  border-radius: 0.85rem;
+  font-size: 1.7rem;
   transition: all 0.2s ease;
   background: #333;
   
   &:focus {
     outline: none;
     border-color: #2196F3;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+    box-shadow: 0 0 0 0.32rem rgba(33, 150, 243, 0.1);
   }
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 1.0625rem;
+  margin-top: 2.89rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'danger'; disabled?: boolean }>`
-  padding: 8px 15px;
+  padding: 0.85rem 1.7rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 0.53rem;
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   background-color: ${props => {
     if (props.disabled) return '#cccccc';
@@ -89,7 +111,7 @@ const Button = styled.button<{ variant?: 'primary' | 'danger'; disabled?: boolea
   }};
   opacity: ${props => props.disabled ? 0.7 : 1};
   color: white;
-  font-size: 14px;
+  font-size: 1.7rem;
   transition: all 0.2s ease;
 `;
 
@@ -100,8 +122,49 @@ const VocabularyPopup: React.FC = () => {
   const [input, setInput] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  
   const [isRewriteCorrect, setIsRewriteCorrect] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Check if reminders are enabled
+    chrome.storage.sync.get({ enableVocabularyReminder: true }, (result) => {
+      setIsEnabled(result.enableVocabularyReminder);
+      if (result.enableVocabularyReminder) {
+        checkAndLoadVocabulary();
+      }
+    });
+
+    // Cleanup function
+    return () => {
+      const container = document.getElementById('vocabulary-popup-root');
+      if (container) {
+        ReactDOM.unmountComponentAtNode(container);
+        container.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key.toLowerCase() === 't') {
+        console.log('ctrl + t');
+      }
+      if (event.ctrlKey && event.key.toLowerCase() === 't' && 
+          vocabulary?.word && 
+          show && 
+          !isPlaying) {
+        setIsPlaying(true);
+        await AudioService.playAudio(vocabulary.word);
+        setIsPlaying(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [show, vocabulary, isPlaying]);
 
   useEffect(() => {
     const handleKeyPress = (event: globalThis.KeyboardEvent) => {
@@ -151,7 +214,7 @@ const VocabularyPopup: React.FC = () => {
   };
 
   const handleInputKeyPress = async (e: ReactKeyboardEvent) => {
-    if (e.key === 'Enter' && input.trim() !== '') {
+    if (e.key === 'Enter') {
       const isAnswerCorrect = input.toLowerCase().trim() === vocabulary?.word.toLowerCase().trim();
       setIsCorrect(isAnswerCorrect);
       setShowAnswer(true);
@@ -174,7 +237,7 @@ const VocabularyPopup: React.FC = () => {
   };
   
   console.log('vocabulary', vocabulary);
-  if (!vocabulary) return null;
+  if (!vocabulary || !isEnabled) return null;
 
   return (
     <>
@@ -202,6 +265,7 @@ const VocabularyPopup: React.FC = () => {
               isRenderTextTracker={!isCorrect}
               isRenderDictionary={true}
               isRenderExplanation={true}
+              onRetypeMatch={(isMatch) => setIsRewriteCorrect(isMatch)}
             />
             </>
           )}

@@ -17,11 +17,15 @@ module.exports = {
     clean: true
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: ['.tsx', '.ts', '.js'],
     alias: {
       'react': path.resolve('./node_modules/react'),
       'react-dom': path.resolve('./node_modules/react-dom'),
       'styled-components': path.resolve('./node_modules/styled-components'),
+    },
+    fallback: {
+      "url": require.resolve("url/"),
+      "buffer": require.resolve("buffer/")
     }
   },
   module: {
