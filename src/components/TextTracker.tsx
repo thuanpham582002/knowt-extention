@@ -6,19 +6,20 @@ interface TextTrackerProps {
   onRetypeMatch?: (isMatch: boolean) => void;
 }
 
+
 const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, onRetypeMatch }) => {
   const [inputText, setInputText] = useState(userAnswer);
   const [isMatch, setIsMatch] = useState(false);
-  const [containerHeight, setContainerHeight] = useState('5.8rem');
+  const [containerHeight, setContainerHeight] = useState('auto');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adjustTextareaHeight = useCallback(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = '5.8rem';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      const newHeight = `${Math.max(scrollHeight / 10, 5.8)}rem`;
-      textareaRef.current.style.height = newHeight;
-      setContainerHeight(newHeight);
+      textareaRef.current.style.height = 'auto';
+      const newHeight = textareaRef.current.scrollHeight;
+      const heightWithPadding = newHeight ; // Convert 3rem to pixels
+      textareaRef.current.style.height = `${heightWithPadding}px`;
+      setContainerHeight(`${heightWithPadding}px`);
     }
   }, []);
 
@@ -54,11 +55,8 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
 
   const textareaStyles = {
     position: 'absolute' as const,
-    top: '0',
-    left: '0',
     width: '100%',
-    height: '100%',
-    padding: '2.1rem 0 2.1rem 1.6rem',
+    padding: `1.5rem 1.6rem`,
     resize: 'none' as const,
     lineHeight: 1.5,
     overflow: 'hidden',
@@ -66,7 +64,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
     borderWidth: '0.125rem',
     borderRadius: '1.7rem',
     fontFamily: 'var(--knowt-font-name)',
-    fontSize: '1.4rem',
+    fontSize: '1.7rem',
     boxSizing: 'border-box' as const
   };
 
@@ -80,7 +78,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
     alignItems: 'center',
     justifyContent: 'center',
     fontFamily: 'var(--knowt-font-name)',
-    fontSize: '1.4rem',
+    fontSize: '1.7rem',
     marginTop: '1rem'
   };
 
@@ -89,7 +87,8 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
       <div style={{ 
         position: 'relative',
         height: containerHeight,
-        minHeight: '5.8rem'
+        display: 'flex',
+        alignItems: 'center'
       }}>
         <textarea
           ref={textareaRef}
