@@ -168,13 +168,20 @@ const VocabularyPopup: React.FC = () => {
 
   useEffect(() => {
     const handleKeyPress = (event: globalThis.KeyboardEvent) => {
+      // Handle Escape key
       if (event.key === 'Escape') {
         handleClose();
-      } else if ( 
-        showAnswer && 
-        isRewriteCorrect
-      ) {
-        if (event.key === 'ArrowRight') {
+        return;
+      }
+
+      // Only handle if answer is shown and rewrite is correct
+      if (showAnswer && isRewriteCorrect) {
+        // Handle standalone ArrowRight (no modifiers)
+        if (event.key === 'ArrowRight' && 
+            !event.ctrlKey && 
+            !event.altKey && 
+            !event.shiftKey && 
+            !event.metaKey) {
           handleNext();
         } else if (event.key === 'Enter') {
           handleClose();

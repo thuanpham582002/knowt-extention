@@ -16,7 +16,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
     if (textareaRef.current) {
       textareaRef.current.style.height = '5.8rem';
       const scrollHeight = textareaRef.current.scrollHeight;
-      const newHeight = Math.max(scrollHeight, 58) + 'px';
+      const newHeight = `${Math.max(scrollHeight / 10, 5.8)}rem`;
       textareaRef.current.style.height = newHeight;
       setContainerHeight(newHeight);
     }
@@ -31,6 +31,16 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
       textareaRef.current.focus();
     }
   }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      if (!e.shiftKey) {
+        e.preventDefault(); // Prevent default Enter behavior
+        return;
+      }
+      // Let Shift+Enter create a new line - default behavior
+    }
+  };
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
@@ -56,7 +66,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
     borderWidth: '0.125rem',
     borderRadius: '1.7rem',
     fontFamily: 'var(--knowt-font-name)',
-    fontSize: '1.7rem',
+    fontSize: '1.4rem',
     boxSizing: 'border-box' as const
   };
 
@@ -70,7 +80,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
     alignItems: 'center',
     justifyContent: 'center',
     fontFamily: 'var(--knowt-font-name)',
-    fontSize: '1.7rem',
+    fontSize: '1.4rem',
     marginTop: '1rem'
   };
 
@@ -88,6 +98,7 @@ const TextTracker: React.FC<TextTrackerProps> = ({ userAnswer, correctAnswer, on
           placeholder="(Press shift + enter for multi line answers)"
           value={inputText}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           style={textareaStyles}
           autoFocus
         />
