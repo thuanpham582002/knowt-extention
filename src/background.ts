@@ -1,43 +1,6 @@
-import { VocabularyItem } from './types/VocabularyItem';
 import * as googleTTS from 'google-tts-api';
 
-async function checkVocabulary() {
-  const now = Date.now();
-  
-  // Get lastCheckTime and breakInterval from storage
-  const { lastCheckTime = 0, breakIntervalMinutes = 5 } = 
-    await chrome.storage.sync.get(['lastCheckTime', 'breakIntervalMinutes']);
-  
-  const BREAK_INTERVAL = breakIntervalMinutes * 60 * 1000;
-
-  // Check if enough time has passed since last check
-  if (now - lastCheckTime < BREAK_INTERVAL) {
-    console.log('Skipping check - within break interval');
-    return;
-  }
-
-  const { vocabularyList = [] } = await chrome.storage.sync.get('vocabularyList');
-  
-  const dueVocabulary = vocabularyList.filter((item: VocabularyItem) => {
-    const timePassed = (now - item.timestamp) / 1000;
-    return timePassed >= item.showAfterSeconds;
-  });
-
-  if (dueVocabulary.length > 0) {
-    console.log('Due vocabulary found:', dueVocabulary.length, 'items');
-    // Update lastCheckTime in storage only when we find due vocabulary
-    await chrome.storage.sync.set({ lastCheckTime: now });
-  }
-}
-
-// Check vocabulary when a new tab is opened
-chrome.tabs.onCreated.addListener(() => {
-  checkVocabulary();
-});
-
-// Also check periodically (every 30 minutes)
-setInterval(checkVocabulary, 30 * 60 * 1000);
-
+// Listen for audio playback requests
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'PLAY_TTS') {
     try {
