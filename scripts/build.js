@@ -13,7 +13,7 @@ function exec(command) {
 // exec("git checkout main");
 
 try {
-    const { version } = require('../package.json');
+    const { version } = require('../../package.json');
     const releasesDir = "releases";
     
     if (!fs.existsSync(releasesDir)){
